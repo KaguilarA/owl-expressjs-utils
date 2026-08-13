@@ -1,7 +1,7 @@
 {
   "name": "owl-expressjs-utils",
   "version": "1.0.0",
-  "description": "",
+  "description": "TypeScript utilities for building Express.js applications with MongoDB, Mongoose, sessions, authentication, CORS, encryption, and CRUD controllers.",
   "type": "module",
   "author": {
     "name": "KaguilarA",
@@ -39,6 +39,18 @@
     "url": "git+https://github.com/KaguilarA/owl-expressjs-utils.git"
   },
   "homepage": "https://github.com/KaguilarA/owl-expressjs-utils#readme",
+  "keywords": [
+    "express",
+    "expressjs",
+    "mongoose",
+    "mongodb",
+    "typescript",
+    "cors",
+    "session",
+    "authentication",
+    "encryption",
+    "crud"
+  ],
   "dependencies": {
     "bcryptjs": "3.0.3",
     "connect-mongo": "6.0.0",
