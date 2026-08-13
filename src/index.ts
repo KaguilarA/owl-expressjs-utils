@@ -4,6 +4,9 @@ export { default as OwlCors } from "./config/cors";
 // MongoDB connection utility.
 export { default as OwlMongoConnect } from "./config/connect";
 
+// Close MongoDB connection utility.
+export { default as OwlMongoClose } from "./config/close-connection";
+
 // Cryptography utilities.
 export { default as OwlCripto } from "./utils/crypto";
 
