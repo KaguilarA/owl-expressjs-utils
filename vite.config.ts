@@ -15,9 +15,9 @@ export default defineConfig({
   }),
   build: {
     rollupOptions: {
+      external: ["express", "express-session", "connect-mongo", "mongoose", "bcryptjs"],
       input: {
         index: path.resolve(__dirname, "src/index.ts"),
-        browser: path.resolve(__dirname, "src/browser.ts"),
       },
       output: {
         entryFileNames: (chunkInfo) => {

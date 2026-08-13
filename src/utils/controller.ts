@@ -8,6 +8,27 @@ import type { ControllerConfig } from "../interfaces/controllerConfig";
  * @param {Object} config.model - Data access model instance containing CRUD operations.
  * @param {string|string[]|Object} [config.populatedFields=[]] - Default fields to populate on queries.
  * @returns {Object} An object containing Express controller functions.
+ * @example
+ * ```ts
+ * import { Router } from 'express';
+ * import createController from './controller.js';
+ * 
+ * const app = Router();
+ * 
+ * const userController = createController({
+ *   entityId: 'User',
+ *   model: userModel,
+ *   populatedFields: ['profile', 'roles'],  
+ * });
+ * 
+ * app.get('/users', userController.getAll);
+ * app.get('/users/:id', userController.getById);
+ * app.post('/users', userController.register);
+ * app.put('/users/:id', userController.update);
+ * app.delete('/users/:id', userController.delete);
+ * 
+ * export default app;
+ * ```
  */
 export default ({ entityId, model, populatedFields = [] }: ControllerConfig) => {
   /**

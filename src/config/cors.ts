@@ -9,8 +9,11 @@ import type { Request, Response, NextFunction } from "express";
  * @returns {Function} Express middleware function that handles CORS configuration and preflight requests
  *
  * @example
+ * ```ts
  * import cors from './cors.js';
+
  * app.use(cors(['http://localhost:3000', 'https://example.com']));
+ * ```
  */
 export default (allowedOrigins: string[]) => function (req: Request, res: Response, next: NextFunction): void {
   const origin = req.headers.origin;

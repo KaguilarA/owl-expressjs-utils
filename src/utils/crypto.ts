@@ -3,6 +3,15 @@ import crypto from "node:crypto";
 /**
  * Encrypted utility module using AES-256-GCM for authenticated encryption.
  * Automatically initializes and validates the encryption key from environment variables.
+ * @example
+ * ```ts
+ * import cryptoUtil from './crypto.js';
+ * 
+ * cryptoUtil.setEncryptionKey(process.env.ENCRYPTION_KEY);
+ * const encrypted = cryptoUtil.encrypt("Hello World");
+ * const decrypted = cryptoUtil.decrypt(encrypted);
+ * console.log(decrypted); // Outputs: Hello World
+ * ```
  */
 export default (function () {
   let algorithm: string;

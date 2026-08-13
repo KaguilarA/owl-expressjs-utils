@@ -12,6 +12,21 @@ import AmpApiCripto from "./crypto.js";
  * @param {string[]} [encryptedFields=[]] - List of fields that should be automatically encrypted.
  * @param {string[]} [hashedFields=[]] - List of fields that should be protected with a bcrypt hash.
  * @returns {Object} An object containing the Mongoose model and data access methods.
+ * @example
+ * ```ts
+ * import createSecureModel from './model.js';
+ *
+ * const UserModel = createSecureModel(
+ *   'User',
+ *   {
+ *     name: { type: String, required: true },
+ *     username: { type: String, required: true },
+ *     password: { type: String, required: true },
+ *   },
+ *   ['username'],
+ *   ['password']
+ * );
+ * ```
  */
 export default (id: string, schemaConfig: any, encryptedFields: string[] = [], hashedFields: string[] = []) => {
   const schema = new Schema(schemaConfig, { timestamps: true });
