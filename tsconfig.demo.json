@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "ESNext",
+    "rootDir": ".",
+    "outDir": "../build",
+
+    "paths": {
+      "@reactiveCore/*": ["./src/*"],
+    },
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["demo", "src"]
+}
