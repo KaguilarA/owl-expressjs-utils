@@ -49,6 +49,7 @@ app.use(OwlSession(
 	process.env.SESSION_SECRET as string,
 	process.env.NODE_ENV ?? "development",
 	"my-database",
+	process.env.MONGO_URI,
 ));
 
 app.get("/private", OwlIsAuth, (req, res) => {
@@ -203,7 +204,7 @@ The middleware allows `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, and `OPTIONS`, an
 
 ## Sessions and Authentication
 
-`OwlSession` stores Express sessions in MongoDB through `connect-mongo`.
+`OwlSession` stores Express sessions in MongoDB through `connect-mongo`. The fourth argument is optional; pass the MongoDB URI when the session middleware cannot access the active Mongoose client directly.
 
 ```ts
 import { OwlSession } from "owl-expressjs-utils";
@@ -265,6 +266,18 @@ The generated controller exposes:
 - `delete`: removes a document by `req.params.id`.
 
 Handlers return `404` for missing documents, `400` for registration or invalid search input, and `500` for unexpected server or database errors.
+
+## Automated Publishing
+
+The repository includes a GitHub Actions workflow at `.github/workflows/publish.yml`.
+
+- Pull requests targeting `main` run `npm test` and `npm run build`.
+- Commits and merges pushed to `main` run the same validation and then publish the package to npm.
+- Manual runs are available through the **Run workflow** button in GitHub Actions.
+
+Before the workflow can publish, add an Actions repository secret named `NPM_TOKEN` containing an npm access token with permission to publish `owl-expressjs-utils`. The workflow uses the `npm` GitHub environment, so configure that environment if you want to require an approval before publishing.
+
+Each successful publication automatically selects the next patch version from the latest version published on npm. For example, a repository version of `1.0.0` is published as `1.0.1`, then `1.0.2` on the next push.
 
 ## Development Scripts
 

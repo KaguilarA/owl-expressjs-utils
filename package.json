@@ -1,6 +1,6 @@
 {
   "name": "owl-expressjs-utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TypeScript utilities for building Express.js applications with MongoDB, Mongoose, sessions, authentication, CORS, encryption, and CRUD controllers.",
   "type": "module",
   "author": {

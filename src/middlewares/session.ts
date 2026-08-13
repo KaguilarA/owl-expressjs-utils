@@ -9,6 +9,7 @@ import mongoose from "mongoose";
  * @param {string} secret - Secret key for session encryption
  * @param {string} env - Environment name (e.g., 'production', 'development')
  * @param {string} dbName - Database name for storing sessions
+ * @param {string} [mongoUrl] - Optional MongoDB URI used when a Mongoose client is not available
  * @returns {Function} Express session middleware
  * 
  * @example
@@ -18,12 +19,28 @@ import mongoose from "mongoose";
  * 
  * const app = express();
  * 
- * app.use(sessionMiddleware('secret-key', 'production', 'mydb'));
+ * app.use(sessionMiddleware('secret-key', 'production', 'mydb', process.env.MONGO_URI));
  * ```
  */
-export default function (secret: string, env: string, dbName: string) {
+export default function (
+  secret: string,
+  env: string,
+  dbName: string,
+  mongoUrl?: string,
+) {
+  const client = mongoose.connection.getClient();
+  const storeOptions = mongoUrl
+    ? { mongoUrl }
+    : client
+      ? { client }
+      : (() => {
+          throw new Error(
+            "MongoDB session store requires a connected Mongoose client or a mongoUrl.",
+          );
+        })();
+
   const mongoStore = MongoStore.create({
-    client: mongoose.connection.getClient(),
+    ...storeOptions,
     dbName,
     touchAfter: 24 * 3600,
     crypto: { secret },
