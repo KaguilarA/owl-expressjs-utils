@@ -1,0 +1,33 @@
+{
+  "name": "owl-expressjs-utils",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "author": {
+    "name": "KaguilarA",
+    "email": "kevin.231@hotmail.com",
+    "url": "https://github.com/KaguilarA"
+  },
+  "homepage": "https://github.com/KaguilarA/owl-expressjs-utils#readme",
+  "bugs": {
+    "url": "https://github.com/KaguilarA/owl-expressjs-utils/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KaguilarA/owl-expressjs-utils.git"
+  },
+  
+  "main": "index.js",
+  "engines": {
+    "node": ">=24.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express": "^5.2.1",
+    "mongoose": "^8.12.0"
+  }
+}
