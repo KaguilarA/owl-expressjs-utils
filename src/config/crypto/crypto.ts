@@ -2,12 +2,13 @@ import crypto from "node:crypto";
 
 /**
  * Encrypted utility module using AES-256-GCM for authenticated encryption.
- * Automatically initializes and validates the encryption key from environment variables.
+ * The utility starts with a development-only key. Applications must replace it
+ * with a unique 64-character hexadecimal key before encrypting production data.
  * @example
  * ```ts
  * import cryptoUtil from './crypto.js';
  * 
- * cryptoUtil.setEncryptionKey(process.env.ENCRYPTION_KEY);
+ * cryptoUtil.setEncryptionKey(process.env.ENCRYPTION_KEY as string);
  * const encrypted = cryptoUtil.encrypt("Hello World");
  * const decrypted = cryptoUtil.decrypt(encrypted);
  * console.log(decrypted); // Outputs: Hello World
@@ -18,6 +19,7 @@ export default (function () {
   let key: string;
   let SECRET_KEY: Buffer;
 
+  /** Converts the configured hexadecimal key into the 32-byte cipher key. */
   function setSecretKey(): void {
     SECRET_KEY = Buffer.from(key, "hex");
 
@@ -30,7 +32,9 @@ export default (function () {
 
   /**
    * Sets the encryption algorithm to be used for encryption and decryption.
-   * @param {string} newAlgorithm 
+  * @param {string} newAlgorithm - Node.js cipher algorithm, such as
+  * `aes-256-gcm`.
+  * @returns {void}
    */
   function setEncryptionAlgorithm(newAlgorithm: string): void {
     algorithm = newAlgorithm;
@@ -38,17 +42,20 @@ export default (function () {
 
   /**
    * Sets the encryption key to be used for encryption and decryption.
-   * @param {string} newKey - The new encryption key (hexadecimal string).
+  * @param {string} newKey - A 64-character hexadecimal string representing
+  * 32 bytes.
+  * @returns {void}
    */
   function setEncryptionKey(newKey: string): void {
     key = newKey;
-    setSecretKey()
+    setSecretKey();
   }
 
   /**
    * Encrypts a plain text string using AES-256-GCM.
    * @param {string} text - The plain text to encrypt.
-   * @returns {string} The formatted encrypted string (iv:authTag:ciphertext).
+  * @returns {string | null | undefined} The formatted encrypted string
+  * (`iv:authTag:ciphertext`), or the original empty value.
    */
   function encrypt(text: string | null | undefined): string | null | undefined {
     if (text === null || text === undefined) return text;
@@ -69,7 +76,9 @@ export default (function () {
    * Decrypts an AES-256-GCM encrypted string.
    *
    * @param {string} encryptedData - The formatted encrypted string (iv:authTag:ciphertext).
-   * @returns {string} The decrypted plain text.
+  * @returns {string} The decrypted plain text.
+  * @throws {Error} If the encrypted value has an invalid format or cannot be
+  * authenticated with the configured key.
    */
   function decrypt(encryptedData: string): string {
     const [ivHex, authTagHex, encryptedText] = encryptedData.split(":");
@@ -93,7 +102,7 @@ export default (function () {
   /**
    * Checks whether a value is already encrypted based on its structural format.
    *
-   * @param {any} val - The value to evaluate.
+  * @param {unknown} val - The value to evaluate.
    * @returns {boolean} True if it matches the encrypted pattern, false otherwise.
    */
   function isEncrypted(val: any): boolean {
