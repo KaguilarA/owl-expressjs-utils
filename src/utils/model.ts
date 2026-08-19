@@ -1,6 +1,8 @@
 import { Schema, model, Query } from "mongoose";
+import type { SchemaDefinition } from "mongoose";
 import bcrypt from "bcryptjs";
 import type { QueryOptions } from "../interfaces/queryOptions";
+import type { ModelReturn } from "../interfaces/modelReturn";
 import AmpApiCripto from "./crypto.js";
 
 /**
@@ -28,7 +30,12 @@ import AmpApiCripto from "./crypto.js";
  * );
  * ```
  */
-export default (id: string, schemaConfig: any, encryptedFields: string[] = [], hashedFields: string[] = []) => {
+export default <T = any>(
+  id: string,
+  schemaConfig: SchemaDefinition<any>,
+  encryptedFields: string[] = [],
+  hashedFields: string[] = [],
+): ModelReturn<T> => {
   const schema = new Schema(schemaConfig, { timestamps: true });
 
   /**

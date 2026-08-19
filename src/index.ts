@@ -1,11 +1,7 @@
 // Owl ExpressJS Utils - A collection of utilities for building ExpressJS applications.
-export { default as OwlCors } from "./config/cors";
 
-// MongoDB connection utility.
-export { default as OwlMongoConnect } from "./config/connect";
-
-// Close MongoDB connection utility.
-export { default as OwlMongoClose } from "./config/close-connection";
+// Functions related to configuration management, including loading and validating environment variables.
+export * from "./config";
 
 // Cryptography utilities.
 export { default as OwlCripto } from "./utils/crypto";
@@ -24,4 +20,5 @@ export { default as OwlIsAuth } from "./middlewares/isAuth";
 
 // Types & Interfaces
 export type { ControllerConfig } from "./interfaces/controllerConfig";
+export type { ModelReturn } from "./interfaces/modelReturn";
 export type { QueryOptions } from "./interfaces/queryOptions";
