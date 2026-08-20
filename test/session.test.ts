@@ -15,7 +15,7 @@ vi.mock("connect-mongo", () => ({
   },
 }));
 
-import sessionMiddleware from "../src/middlewares/session";
+import sessionMiddleware from "../src/middlewares/session/session";
 
 describe("Session Middleware Factory", () => {
   it("should export a session middleware factory", () => {

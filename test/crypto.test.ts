@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import AmpApiCripto from "../src/utils/crypto";
+import OwlCrypto from "../src/config/crypto/crypto";
 
 describe("Crypto Module", () => {
   beforeEach(() => {
     // Reset to default key before each test
-    AmpApiCripto.setEncryptionKey(
+    OwlCrypto.setEncryptionKey(
       "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
     );
   });
@@ -12,7 +12,7 @@ describe("Crypto Module", () => {
   describe("encrypt", () => {
     it("should encrypt a string successfully", () => {
       const plaintext = "Hello, World!";
-      const encrypted = AmpApiCripto.encrypt(plaintext);
+      const encrypted = OwlCrypto.encrypt(plaintext);
 
       expect(encrypted).toBeDefined();
       expect(typeof encrypted).toBe("string");
@@ -21,18 +21,18 @@ describe("Crypto Module", () => {
     });
 
     it("should handle null values", () => {
-      const result = AmpApiCripto.encrypt(null);
+      const result = OwlCrypto.encrypt(null);
       expect(result).toBeNull();
     });
 
     it("should handle undefined values", () => {
-      const result = AmpApiCripto.encrypt(undefined);
+      const result = OwlCrypto.encrypt(undefined);
       expect(result).toBeUndefined();
     });
 
     it("should encrypt numbers by converting to string", () => {
       const num = 12345;
-      const encrypted = AmpApiCripto.encrypt(num);
+      const encrypted = OwlCrypto.encrypt(num);
 
       expect(encrypted).toBeDefined();
       expect(typeof encrypted).toBe("string");
@@ -43,8 +43,8 @@ describe("Crypto Module", () => {
   describe("decrypt", () => {
     it("should decrypt an encrypted string correctly", () => {
       const plaintext = "Sensitive Data";
-      const encrypted = AmpApiCripto.encrypt(plaintext);
-      const decrypted = AmpApiCripto.decrypt(encrypted);
+      const encrypted = OwlCrypto.encrypt(plaintext);
+      const decrypted = OwlCrypto.decrypt(encrypted as string);
 
       expect(decrypted).toBe(plaintext);
     });
@@ -53,7 +53,7 @@ describe("Crypto Module", () => {
       const invalidEncrypted = "xx:xx:xx";
 
       expect(() => {
-        AmpApiCripto.decrypt(invalidEncrypted);
+        OwlCrypto.decrypt(invalidEncrypted);
       }).toThrow();
     });
 
@@ -61,7 +61,7 @@ describe("Crypto Module", () => {
       const missingParts = "onlyOne";
 
       expect(() => {
-        AmpApiCripto.decrypt(missingParts);
+        OwlCrypto.decrypt(missingParts);
       }).toThrow("Invalid encrypted text format");
     });
   });
@@ -69,22 +69,22 @@ describe("Crypto Module", () => {
   describe("isEncrypted", () => {
     it("should return true for encrypted strings", () => {
       const plaintext = "Test";
-      const encrypted = AmpApiCripto.encrypt(plaintext);
+      const encrypted = OwlCrypto.encrypt(plaintext);
 
-      expect(AmpApiCripto.isEncrypted(encrypted)).toBe(true);
+      expect(OwlCrypto.isEncrypted(encrypted)).toBe(true);
     });
 
     it("should return false for non-encrypted strings", () => {
-      expect(AmpApiCripto.isEncrypted("plaintext")).toBe(false);
-      expect(AmpApiCripto.isEncrypted("some:random:string")).toBe(false);
+      expect(OwlCrypto.isEncrypted("plaintext")).toBe(false);
+      expect(OwlCrypto.isEncrypted("some:random:string")).toBe(false);
     });
 
     it("should return false for non-string values", () => {
-      expect(AmpApiCripto.isEncrypted(123)).toBe(false);
-      expect(AmpApiCripto.isEncrypted(null)).toBe(false);
-      expect(AmpApiCripto.isEncrypted(undefined)).toBe(false);
-      expect(AmpApiCripto.isEncrypted({})).toBe(false);
-      expect(AmpApiCripto.isEncrypted([])).toBe(false);
+      expect(OwlCrypto.isEncrypted(123)).toBe(false);
+      expect(OwlCrypto.isEncrypted(null)).toBe(false);
+      expect(OwlCrypto.isEncrypted(undefined)).toBe(false);
+      expect(OwlCrypto.isEncrypted({})).toBe(false);
+      expect(OwlCrypto.isEncrypted([])).toBe(false);
     });
   });
 
@@ -92,11 +92,11 @@ describe("Crypto Module", () => {
     it("should update the encryption key", () => {
       const newKey =
         "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-      AmpApiCripto.setEncryptionKey(newKey);
+      OwlCrypto.setEncryptionKey(newKey);
 
       const plaintext = "Test";
-      const encrypted = AmpApiCripto.encrypt(plaintext);
-      const decrypted = AmpApiCripto.decrypt(encrypted);
+      const encrypted = OwlCrypto.encrypt(plaintext);
+      const decrypted = OwlCrypto.decrypt(encrypted as string);
 
       expect(decrypted).toBe(plaintext);
     });
@@ -106,7 +106,7 @@ describe("Crypto Module", () => {
     it("should allow setting a different algorithm", () => {
       // This just sets the algorithm, actual validation would depend on Node.js crypto support
       expect(() => {
-        AmpApiCripto.setEncryptionAlgorithm("aes-256-gcm");
+        OwlCrypto.setEncryptionAlgorithm("aes-256-gcm");
       }).not.toThrow();
     });
   });
