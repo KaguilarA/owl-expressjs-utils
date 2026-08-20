@@ -351,8 +351,10 @@ The application remains responsible for request validation, authorization policy
 The repository includes a GitHub Actions workflow at `.github/workflows/publish.yml`.
 
 - Pull requests targeting `main` run `npm test` and `npm run build`.
-- Commits and merges pushed to `main` run the same validation and then publish the package to npm.
+- Commits and merges pushed to `main` run tests before building and publish the package only after validation succeeds.
 - Manual runs are available through the **Run workflow** button in GitHub Actions.
+
+The `test:build` script always runs `npm test` before `npm run build`. The `prepublishOnly` lifecycle hook runs the test suite again immediately before any `npm publish`, including publishes started outside GitHub Actions.
 
 Before the workflow can publish, add an Actions repository secret named `NPM_TOKEN` containing an npm access token with permission to publish `owl-expressjs-utils`. The workflow uses the `npm` GitHub environment, so configure that environment if you want to require an approval before publishing.
 
@@ -363,6 +365,7 @@ Each successful publication automatically selects the next patch version from th
 ```bash
 npm run build       # Type-check and create ESM, CommonJS, and declaration builds
 npm test            # Run the Vitest test suite
+npm run test:build  # Run tests, then build the package
 npm run test:ui     # Open the Vitest UI
 ```
 

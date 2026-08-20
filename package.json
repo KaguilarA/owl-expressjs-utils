@@ -29,6 +29,8 @@
     "dev": "vite --config vite.demo.config.ts",
     "build": "tsc && vite build",
     "test": "vitest run",
+    "test:build": "npm test && npm run build",
+    "prepublishOnly": "npm test",
     "test:ui": "vitest --ui",
     "build-demo": "tsc -p tsconfig.demo.json && vite build --config vite.demo.config.ts",
     "demo": "vite --config vite.demo.config.ts",

@@ -38,11 +38,8 @@ jobs:
         shell: bash
         run: test -f package-lock.json
 
-      - name: Run tests
-        run: npm test
-
-      - name: Build package
-        run: npm run build
+      - name: Test and build package
+        run: npm run test:build
 
   publish:
     name: Publish to npm
@@ -68,8 +65,8 @@ jobs:
         shell: bash
         run: test -f package-lock.json
 
-      - name: Build package
-        run: npm run build
+      - name: Test and build package
+        run: npm run test:build
 
       - name: Select next patch version
         shell: bash
