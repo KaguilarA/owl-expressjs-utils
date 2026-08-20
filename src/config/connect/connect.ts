@@ -1,11 +1,14 @@
 import mongoose from "mongoose";
+import type { ConnectOptions } from "mongoose";
 
 /**
  * Establishes a secure connection to the MongoDB database using Mongoose.
- * Validates the presence of the connection URI in environment variables and handles connection errors.
+ * Validates the connection URI and opens the default Mongoose connection.
  * @param {string} url The MongoDB connection URI.
+ * @param {ConnectOptions} [options={}] Optional Mongoose connection options.
  * @returns {Promise<void>} A promise that resolves when the connection is successfully established.
- * @throws {Error} Throws an error if the connection URI is not defined or if the connection fails.
+ * @throws {Error} Throws if the URI is missing or Mongoose cannot connect. The
+ * caller controls process lifecycle and may decide whether to retry or exit.
  * @example
  * ```ts
  * import connectToMongoDB from './connect.js';
@@ -13,24 +16,20 @@ import mongoose from "mongoose";
  * await connectToMongoDB(process.env.MONGO_URI);
  * ```
  */
-export default async (url: string) => {
+export default async (url: string, options: ConnectOptions = {}): Promise<void> => {
   if (!url) throw new Error("Mongo db url is not defined");
 
-  try {
-    mongoose.set("strictQuery", true);
+  mongoose.set("strictQuery", true);
 
-    await mongoose.connect(url, {
-      maxPoolSize: 10,
-      minPoolSize: 2,
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 45000,
-      heartbeatFrequencyMS: 2000,
-      retryWrites: true,
-    });
+  await mongoose.connect(url, {
+    maxPoolSize: 10,
+    minPoolSize: 2,
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+    heartbeatFrequencyMS: 2000,
+    retryWrites: true,
+    ...options,
+  });
 
-    console.log("MongoDB connected successfully");
-  } catch (error) {
-    console.error("MongoDB connection failed:", error);
-    process.exit(1);
-  }
+  console.log("MongoDB connected successfully");
 };

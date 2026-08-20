@@ -3,7 +3,7 @@
 The `src/config` module contains reusable configuration helpers for Express.js backends:
 
 - `OwlMongoConnect` opens a Mongoose connection to MongoDB.
-- `OwlMongoClose` closes the active Mongoose connection and terminates the process.
+- `OwlMongoClose` closes the active Mongoose connection without terminating the process.
 - `OwlCrypto` provides AES-256-GCM encryption and decryption helpers.
 
 The package re-exports these utilities from its root entry point, so consumers can import them directly:
@@ -33,7 +33,7 @@ app.use(express.json());
 app.listen(3000);
 ```
 
-`OwlMongoConnect` throws when no URL is provided. If Mongoose cannot connect, it logs the error and exits with status `1`.
+`OwlMongoConnect` throws when no URL is provided or when Mongoose cannot connect. The caller controls retries, logging, and process shutdown. Optional Mongoose connection settings can be passed as the second argument.
 
 ## Graceful shutdown
 
@@ -46,4 +46,4 @@ process.once("SIGINT", OwlMongoClose);
 process.once("SIGTERM", OwlMongoClose);
 ```
 
-The helper disconnects Mongoose, logs the result, and exits the process. Register each signal handler once to avoid running the shutdown sequence multiple times.
+The helper disconnects Mongoose and propagates errors to the signal handler. Register each signal handler once and decide in the application whether a shutdown error should affect the process exit code.

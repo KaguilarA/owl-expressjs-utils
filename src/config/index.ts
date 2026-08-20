@@ -4,7 +4,7 @@
 /** Provides AES-256-GCM encryption and decryption helpers. */
 export { default as OwlCrypto } from "./crypto/crypto";
 
-/** Closes the active Mongoose connection and exits the process. */
+/** Closes the active Mongoose connection without exiting the process. */
 export { default as OwlMongoClose } from "./closeConnection/closeConnection";
 
 /** Opens the default Mongoose connection to MongoDB. */

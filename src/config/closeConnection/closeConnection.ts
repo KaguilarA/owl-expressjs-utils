@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
 
 /**
- * Closes the active Mongoose connection and terminates the Node.js process.
+ * Closes the active Mongoose connection.
  *
  * Use this helper from `SIGINT` and `SIGTERM` handlers during application
- * shutdown. It exits with status `0` after a successful disconnect and status
- * `1` when the disconnect fails.
+ * shutdown. Errors are rethrown so the application can decide how to report or
+ * handle them.
  *
- * @returns {Promise<void>} A promise that settles immediately before the
- * process exits.
+ * @returns {Promise<void>} A promise that resolves after disconnection.
+ * @throws {Error} If Mongoose cannot disconnect.
  * @example
  * ```ts
  * import { OwlMongoClose } from "owl-expressjs-utils";
@@ -16,13 +16,7 @@ import mongoose from "mongoose";
  * process.once("SIGTERM", OwlMongoClose);
  * ```
  */
-export default async () => {
-  try {
-    await mongoose.disconnect();
-    console.log("MongoDB disconnected successfully.");
-    process.exit(0);
-  } catch (err) {
-    console.error("MongoDB disconnection failed:", err);
-    process.exit(1);
-  }
+export default async (): Promise<void> => {
+  await mongoose.disconnect();
+  console.log("MongoDB disconnected successfully.");
 }

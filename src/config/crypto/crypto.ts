@@ -2,8 +2,8 @@ import crypto from "node:crypto";
 
 /**
  * Encrypted utility module using AES-256-GCM for authenticated encryption.
- * The utility starts with a development-only key. Applications must replace it
- * with a unique 64-character hexadecimal key before encrypting production data.
+ * Applications must configure a unique 64-character hexadecimal key before
+ * encrypting or decrypting data.
  * @example
  * ```ts
  * import cryptoUtil from './crypto.js';
@@ -16,18 +16,19 @@ import crypto from "node:crypto";
  */
 export default (function () {
   let algorithm: string;
-  let key: string;
-  let SECRET_KEY: Buffer;
+  let SECRET_KEY: Buffer | undefined;
 
-  /** Converts the configured hexadecimal key into the 32-byte cipher key. */
-  function setSecretKey(): void {
-    SECRET_KEY = Buffer.from(key, "hex");
+  /** Validates and converts a hexadecimal key into the 32-byte cipher key. */
+  function setSecretKey(newKey: string): Buffer {
+    const secretKey = Buffer.from(newKey, "hex");
 
-    if (SECRET_KEY.length !== 32) {
+    if (!/^[0-9a-fA-F]{64}$/.test(newKey) || secretKey.length !== 32) {
       throw new Error(
         "Encryption key must be a 64-character hexadecimal string (32 bytes).",
       );
     }
+
+    return secretKey;
   }
 
   /**
@@ -47,8 +48,13 @@ export default (function () {
   * @returns {void}
    */
   function setEncryptionKey(newKey: string): void {
-    key = newKey;
-    setSecretKey();
+    const secretKey = setSecretKey(newKey);
+    SECRET_KEY = secretKey;
+  }
+
+  /** Returns whether a valid encryption key has been configured. */
+  function isConfigured(): boolean {
+    return SECRET_KEY?.length === 32;
   }
 
   /**
@@ -60,6 +66,10 @@ export default (function () {
   function encrypt(text: string | null | undefined): string | null | undefined {
     if (text === null || text === undefined) return text;
     const stringValue = typeof text === "string" ? text : String(text);
+
+    if (!isConfigured() || !SECRET_KEY) {
+      throw new Error("Encryption key must be configured before encrypting data.");
+    }
 
     const iv = crypto.randomBytes(12); // 12-byte IV for GCM
     const cipher = crypto.createCipheriv(algorithm, SECRET_KEY, iv);
@@ -81,6 +91,10 @@ export default (function () {
   * authenticated with the configured key.
    */
   function decrypt(encryptedData: string): string {
+    if (!isConfigured() || !SECRET_KEY) {
+      throw new Error("Encryption key must be configured before decrypting data.");
+    }
+
     const [ivHex, authTagHex, encryptedText] = encryptedData.split(":");
 
     if (!ivHex || !authTagHex || !encryptedText) {
@@ -105,7 +119,7 @@ export default (function () {
   * @param {unknown} val - The value to evaluate.
    * @returns {boolean} True if it matches the encrypted pattern, false otherwise.
    */
-  function isEncrypted(val: any): boolean {
+  function isEncrypted(val: unknown): boolean {
     if (typeof val !== "string") return false;
     const parts = val.split(":");
     return (
@@ -114,7 +128,13 @@ export default (function () {
   }
 
   setEncryptionAlgorithm("aes-256-gcm");
-  setEncryptionKey("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
 
-  return { encrypt, decrypt, isEncrypted, setEncryptionAlgorithm, setEncryptionKey };
+  return {
+    encrypt,
+    decrypt,
+    isConfigured,
+    isEncrypted,
+    setEncryptionAlgorithm,
+    setEncryptionKey,
+  };
 })();

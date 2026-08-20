@@ -10,7 +10,7 @@ import { OwlCrypto } from "owl-expressjs-utils";
 
 ## Encryption key
 
-The module starts with a development-only key so it can be imported without additional setup. Replace it before encrypting application data:
+The module does not configure a key automatically. Set one before encrypting or decrypting application data:
 
 ```ts
 const encryptionKey = process.env.ENCRYPTION_KEY;
@@ -22,7 +22,7 @@ if (!encryptionKey) {
 OwlCrypto.setEncryptionKey(encryptionKey);
 ```
 
-The key must be a 64-character hexadecimal string representing 32 bytes. Use a unique secret in production and keep it outside source control. Changing the key makes values encrypted with the previous key impossible to decrypt unless the old key is retained for a migration.
+The key must be a 64-character hexadecimal string representing 32 bytes. Use a unique secret in production and keep it outside source control. Changing the key makes values encrypted with the previous key impossible to decrypt unless the old key is retained for a migration. `OwlCrypto.isConfigured()` reports whether a valid key is active.
 
 ## Methods
 
@@ -59,7 +59,7 @@ Performs a structural check for the expected three-part encrypted format. It ret
 
 ## Security considerations
 
-- Never use the built-in development key for sensitive production data.
+- Always configure a unique key before handling sensitive production data.
 - Do not log plaintext values, encryption keys, authentication tags, or ciphertexts.
 - Store the key in a secret manager or protected environment variable.
 - Preserve the same key and algorithm across application instances that share encrypted data.

@@ -24,7 +24,7 @@ The promise resolves after Mongoose connects successfully. The helper enables st
 
 ## Failure behavior
 
-The function throws when the URI is empty. If Mongoose fails to connect, it logs the original error and exits the process with status `1`. This behavior is suitable for application startup, where an unavailable database makes the backend unusable; callers should validate configuration before invoking it.
+The function throws when the URI is empty or Mongoose fails to connect. It does not terminate the consuming process, so callers can choose a retry, fallback, or shutdown policy.
 
 Call this helper once during application startup, before creating MongoDB-backed models or session stores:
 
