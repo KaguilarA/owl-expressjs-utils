@@ -34,6 +34,21 @@ app.use(OwlSession(
 ));
 ```
 
+Pass a fifth argument to override Express session settings, including cookie options:
+
+```ts
+app.use(OwlSession(
+	process.env.SESSION_SECRET as string,
+	"production",
+	"application-sessions",
+	process.env.MONGO_URI,
+	{
+		cookie: { sameSite: "none", domain: ".example.com", maxAge: 1000 * 60 * 60 },
+		proxy: true,
+	},
+));
+```
+
 ## Parameters
 
 | Parameter | Description |
@@ -42,6 +57,7 @@ app.use(OwlSession(
 | `env` | Environment name. Cookies are marked `secure` only when this is `"production"`. |
 | `dbName` | MongoDB database used for session documents. |
 | `mongoUrl` | Optional MongoDB URI. If omitted, a connected Mongoose client is required. |
+| `options` | Optional Express session settings. The library owns `secret` and the MongoDB-backed `store`. |
 
 The middleware uses non-resaving, non-uninitialized sessions, rolling cookies, `httpOnly`, `sameSite: "lax"`, and a 24-hour cookie lifetime. Keep the session secret outside source control and use a strong value in production.
 

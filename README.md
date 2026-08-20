@@ -104,6 +104,7 @@ All utilities are exported from the package root:
 | `OwlController` | Creates Express handlers for common CRUD operations. |
 | `ControllerConfig` | TypeScript configuration type for `OwlController`. |
 | `EntityConfig` | TypeScript configuration type for `OwlEntity`. |
+| `ModelOptions` | TypeScript options for timestamps and bcrypt cost. |
 | `ModelReturn` | TypeScript contract returned by `OwlModel`. |
 | `QueryOptions` | TypeScript options type for model queries. |
 
@@ -117,7 +118,7 @@ import { OwlMongoConnect } from "owl-expressjs-utils";
 await OwlMongoConnect("mongodb://127.0.0.1:27017/example");
 ```
 
-The function logs connection failures and exits the process when the connection cannot be established. Handle configuration and deployment errors accordingly.
+The function throws when configuration is missing or the connection fails. It does not terminate the consuming process; handle retries and shutdown in the application.
 
 ## Secure Models
 
@@ -205,7 +206,7 @@ const plainText = OwlCrypto.decrypt(encrypted as string);
 const isEncrypted = OwlCrypto.isEncrypted(encrypted);
 ```
 
-The key must be a 64-character hexadecimal string representing 32 bytes. Configure a unique production key before encrypting application data. The module initializes with a development key, but that default must not be used for sensitive production data.
+The key must be a 64-character hexadecimal string representing 32 bytes. Configure a unique production key before encrypting application data. No default key is configured, so encrypted models fail fast until the application explicitly sets one.
 
 Available methods:
 
@@ -326,6 +327,7 @@ The package publishes type-only contracts for strongly typed backend integration
 import type {
 	ControllerConfig,
 	EntityConfig,
+	ModelOptions,
 	ModelReturn,
 	QueryOptions,
 } from "owl-expressjs-utils";

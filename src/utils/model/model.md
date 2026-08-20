@@ -21,6 +21,7 @@ const UserModel = OwlModel(
 	},
 	["phoneNumber"],
 	["password"],
+	{ bcryptSaltRounds: 12 },
 );
 ```
 
@@ -32,8 +33,11 @@ The arguments are:
 | `schemaConfig` | Mongoose schema definition. The generated schema enables timestamps. |
 | `encryptedFields` | Optional field names encrypted with `OwlCrypto` before save and decrypted after supported queries. |
 | `hashedFields` | Optional field names hashed with bcrypt before save or update. |
+| `options` | Optional `ModelOptions` settings for timestamps and bcrypt cost. |
 
 Configure `OwlCrypto` with a production key before saving encrypted fields. Hashed and encrypted fields are removed from JSON serialization, and `compareHash` can verify a hashed value without exposing it.
+
+Creating a model with `encryptedFields` before calling `OwlCrypto.setEncryptionKey(...)` throws immediately. Models without encrypted fields can be created without crypto configuration.
 
 ## Data-access methods
 

@@ -8,6 +8,7 @@ All interfaces are exported as type-only exports. JavaScript consumers do not ne
 import type {
 	ControllerConfig,
 	EntityConfig,
+	ModelOptions,
 	ModelReturn,
 	QueryOptions,
 } from "owl-expressjs-utils";
@@ -104,3 +105,12 @@ const userEntity: EntityConfig = {
 | `populatedFields` | `string[]` | Optional relationship paths populated by the entity helper. |
 
 These interfaces describe compile-time contracts only. They do not create runtime validation and are removed from compiled JavaScript output.
+
+## `ModelOptions`
+
+`ModelOptions` customizes model behavior that can differ between backend applications:
+
+| Property | Type | Default | Purpose |
+| --- | --- | --- | --- |
+| `timestamps` | `boolean` | `true` | Enables Mongoose `createdAt` and `updatedAt` fields. |
+| `bcryptSaltRounds` | `number` | `10` | Controls the bcrypt cost used for configured hashed fields. |

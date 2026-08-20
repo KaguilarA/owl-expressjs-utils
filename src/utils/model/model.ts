@@ -1,8 +1,8 @@
-import { Schema, model, Query } from "mongoose";
-import type { SchemaDefinition } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
+import type { Query, SchemaDefinition } from "mongoose";
 import bcrypt from "bcryptjs";
 import { OwlCrypto } from "./../../config";
-import type { ModelReturn, QueryOptions } from "./../../interfaces";
+import type { ModelOptions, ModelReturn, QueryOptions } from "./../../interfaces";
 
 /**
  * Creates a Mongoose model factory with built-in security for field encryption and hashing,
@@ -14,6 +14,7 @@ import type { ModelReturn, QueryOptions } from "./../../interfaces";
  * @param {import("mongoose").SchemaDefinition} schemaConfig - Mongoose schema definition.
  * @param {string[]} [encryptedFields=[]] - List of fields that should be automatically encrypted.
  * @param {string[]} [hashedFields=[]] - List of fields that should be protected with a bcrypt hash.
+ * @param {ModelOptions} [options={}] - Optional timestamp and bcrypt settings.
  * @returns {ModelReturn<T>} Data-access methods for the created Mongoose model.
  * @example
  * ```ts
@@ -36,8 +37,17 @@ export default <T = any>(
   schemaConfig: SchemaDefinition<any>,
   encryptedFields: string[] = [],
   hashedFields: string[] = [],
+  options: ModelOptions = {},
 ): ModelReturn<T> => {
-  const schema = new Schema(schemaConfig, { timestamps: true });
+  if (encryptedFields.length > 0 && !OwlCrypto.isConfigured()) {
+    throw new Error(
+      "OwlCrypto.setEncryptionKey must be called before creating a model with encrypted fields.",
+    );
+  }
+
+  const schema = new Schema(schemaConfig, {
+    timestamps: options.timestamps ?? true,
+  });
 
   /**
    * Processes a document after a query to decrypt its protected fields.
@@ -112,7 +122,7 @@ export default <T = any>(
           this[field] &&
           !isBcryptHash(this[field])
         ) {
-          const salt = await bcrypt.genSalt(10);
+          const salt = await bcrypt.genSalt(options.bcryptSaltRounds ?? 10);
           this[field] = await bcrypt.hash(this[field], salt);
         }
       }
@@ -138,7 +148,7 @@ export default <T = any>(
         for (const field of hashFields) {
           const val = update[field] || (update.$set && update.$set[field]);
           if (val && typeof val === "string" && !isBcryptHash(val)) {
-            const salt = await bcrypt.genSalt(10);
+            const salt = await bcrypt.genSalt(options.bcryptSaltRounds ?? 10);
             const hashedVal = await bcrypt.hash(val, salt);
             if (update[field]) update[field] = hashedVal;
             if (update.$set && update.$set[field])
@@ -219,7 +229,7 @@ export default <T = any>(
     setupSecurityHooks(schema, encryptedFields, hashedFields);
   }
 
-  const Model = model(id, schema);
+  const Model = mongoose.models[id] ?? model(id, schema);
 
   /**
    * Compares a candidate value against a hash-protected field.

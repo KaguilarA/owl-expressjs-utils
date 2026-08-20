@@ -9,7 +9,7 @@ The package root re-exports four groups:
 | Configuration | `OwlCrypto`, `OwlMongoConnect`, `OwlMongoClose` |
 | Middleware | `OwlCors`, `OwlSession`, `OwlIsAuth` |
 | Utilities | `OwlModel`, `OwlEntity`, `OwlController` |
-| Types | `ControllerConfig`, `EntityConfig`, `ModelReturn`, `QueryOptions` |
+| Types | `ControllerConfig`, `EntityConfig`, `ModelOptions`, `ModelReturn`, `QueryOptions` |
 
 ## Import from the package root
 
@@ -29,6 +29,7 @@ import {
 import type {
 	ControllerConfig,
 	EntityConfig,
+	ModelOptions,
 	ModelReturn,
 	QueryOptions,
 } from "owl-expressjs-utils";
