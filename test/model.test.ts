@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import mongoose from "mongoose";
+import OwlModel from "../src/utils/model/model";
 
 /**
  * Model Factory Tests
@@ -7,6 +8,24 @@ import mongoose from "mongoose";
  * For unit tests, mock the mongoose methods appropriately.
  */
 describe("Model Factory", () => {
+  it("supports disabling timestamps per model", () => {
+    const modelName = `NoTimestamps${Date.now()}`;
+
+    OwlModel(modelName, { name: String }, [], [], { timestamps: false });
+
+    expect(mongoose.model(modelName).schema.path("createdAt")).toBeUndefined();
+    expect(mongoose.model(modelName).schema.path("updatedAt")).toBeUndefined();
+  });
+
+  it("reuses an existing Mongoose model name without throwing", () => {
+    const modelName = `Reusable${Date.now()}`;
+
+    expect(() => {
+      OwlModel(modelName, { name: String });
+      OwlModel(modelName, { name: String });
+    }).not.toThrow();
+  });
+
   // Note: Real MongoDB tests would require a test database instance
   // These are placeholder tests showing the expected behavior
 

@@ -89,6 +89,15 @@ describe("Crypto Module", () => {
   });
 
   describe("setEncryptionKey", () => {
+    it("should reject invalid keys without replacing the active key", () => {
+      expect(() => OwlCrypto.setEncryptionKey("invalid-key")).toThrow(
+        "Encryption key must be a 64-character hexadecimal string",
+      );
+
+      const encrypted = OwlCrypto.encrypt("still configured");
+      expect(OwlCrypto.decrypt(encrypted as string)).toBe("still configured");
+    });
+
     it("should update the encryption key", () => {
       const newKey =
         "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
