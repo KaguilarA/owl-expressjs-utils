@@ -22,7 +22,7 @@ Connect to MongoDB before registering features that depend on the active Mongoos
 
 ```ts
 import express from "express";
-import { OwlCors, OwlMongoConnect } from "owl-expressjs-utils";
+import { OwlMongoConnect } from "owl-expressjs-utils";
 
 const app = express();
 
