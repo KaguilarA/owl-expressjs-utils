@@ -9,5 +9,5 @@ export interface ControllerConfig {
   model: any;
 
   /** Relationships to populate when controller queries retrieve documents. */
-  populatedFields?: string | string[] | Record<string, any> | Record<string, any>[];
+  populatedFields?: string[];
 }

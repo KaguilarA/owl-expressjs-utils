@@ -2,14 +2,12 @@ import type { Request, Response } from "express";
 import type { ControllerConfig } from "./../../interfaces";
 
 /**
- * Creates Express handlers for common CRUD and search operations.
+ * Controller factory for handling HTTP requests and responses for a given model.
  * @param {Object} config - Configuration object.
  * @param {string} config.entityId - Identifier or name of the entity.
  * @param {Object} config.model - Data access model instance containing CRUD operations.
  * @param {string|string[]|Object} [config.populatedFields=[]] - Default fields to populate on queries.
- * @returns An object containing Express controller functions.
- * The returned handlers use `req.params.id`, `req.body`, and documented query
- * parameters according to the operation.
+ * @returns {Object} An object containing Express controller functions.
  * @example
  * ```ts
  * import { Router } from 'express';

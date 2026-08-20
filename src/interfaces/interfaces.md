@@ -1,13 +1,12 @@
 # Public Interfaces
 
-The `src/interfaces` module contains the TypeScript contracts used by the reusable controller, entity, and model helpers in `owl-expressjs-utils`.
+The `src/interfaces` module contains the TypeScript contracts used by the reusable controller and model helpers in `owl-expressjs-utils`.
 
 All interfaces are exported as type-only exports. JavaScript consumers do not need to import them at runtime, while TypeScript consumers can import them from the package root:
 
 ```ts
 import type {
 	ControllerConfig,
-	EntityConfig,
 	ModelOptions,
 	ModelReturn,
 	QueryOptions,
@@ -85,24 +84,6 @@ const userController = OwlController({
 | `entityId` | `string` | Entity name used in controller responses and errors. |
 | `model` | `any` | Model helper implementing the CRUD operations consumed by the controller. |
 | `populatedFields` | `string \| string[] \| Record<string, any> \| Record<string, any>[]` | Optional relationships to populate in controller queries. |
-
-## `EntityConfig`
-
-`EntityConfig` is the narrower configuration contract used by entity helpers. It expects a `ModelReturn` implementation and accepts simple population paths:
-
-```ts
-const userEntity: EntityConfig = {
-	entityId: "User",
-	model: UserModel,
-	populatedFields: ["profile", "roles"],
-};
-```
-
-| Property | Type | Purpose |
-| --- | --- | --- |
-| `entityId` | `string` | Entity name used to identify the resource. |
-| `model` | `ModelReturn` | Reusable model contract used for data access. |
-| `populatedFields` | `string[]` | Optional relationship paths populated by the entity helper. |
 
 These interfaces describe compile-time contracts only. They do not create runtime validation and are removed from compiled JavaScript output.
 

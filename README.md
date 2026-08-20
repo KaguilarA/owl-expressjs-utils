@@ -50,7 +50,6 @@ The README is the public overview. The source documentation contains the detaile
 | TypeScript interfaces | [`src/interfaces/interfaces.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/interfaces/interfaces.md) |
 | Utility factory overview | [`src/utils/utils.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/utils/utils.md) |
 | Mongoose model factory | [`src/utils/model/model.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/utils/model/model.md) |
-| Entity service factory | [`src/utils/entity/entity.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/utils/entity/entity.md) |
 | Express controller factory | [`src/utils/controller/controller.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/utils/controller/controller.md) |
 
 ## Quick Start
@@ -100,10 +99,8 @@ All utilities are exported from the package root:
 | `OwlIsAuth` | Rejects requests without `req.session.userId`. |
 | `OwlCrypto` | Encrypts and decrypts values with AES-256-GCM. |
 | `OwlModel` | Creates a Mongoose model with security and query helpers. |
-| `OwlEntity` | Creates a reusable application service around a model helper. |
 | `OwlController` | Creates Express handlers for common CRUD operations. |
 | `ControllerConfig` | TypeScript configuration type for `OwlController`. |
-| `EntityConfig` | TypeScript configuration type for `OwlEntity`. |
 | `ModelOptions` | TypeScript options for timestamps and bcrypt cost. |
 | `ModelReturn` | TypeScript contract returned by `OwlModel`. |
 | `QueryOptions` | TypeScript options type for model queries. |
@@ -300,25 +297,6 @@ Handlers return `404` for missing documents, `400` for registration or invalid s
 
 See the complete [controller documentation](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/utils/controller/controller.md) for route inputs, response behavior, and responsibility boundaries.
 
-## Entity Services
-
-`OwlEntity` provides a service-layer boundary around an `OwlModel` helper. It centralizes population defaults, contextual error logging, and common data-access methods without coupling application services to Express request and response objects.
-
-```ts
-import { OwlEntity } from "owl-expressjs-utils";
-
-const userEntity = OwlEntity({
-	entityId: "User",
-	model: User,
-	populatedFields: ["profile", "roles"],
-});
-
-const user = await userEntity.getById(userId);
-const users = await userEntity.getAll();
-```
-
-See the [entity service documentation](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/utils/entity/entity.md) and [utility composition guide](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/utils/utils.md).
-
 ## TypeScript Contracts
 
 The package publishes type-only contracts for strongly typed backend integrations:
@@ -326,7 +304,6 @@ The package publishes type-only contracts for strongly typed backend integration
 ```ts
 import type {
 	ControllerConfig,
-	EntityConfig,
 	ModelOptions,
 	ModelReturn,
 	QueryOptions,
@@ -342,9 +319,8 @@ The library is intentionally composable rather than opinionated about applicatio
 1. `OwlMongoConnect` establishes the Mongoose connection.
 2. `OwlCrypto` provides encryption configuration for protected model fields.
 3. `OwlModel` owns persistence, security hooks, querying, population, and pagination.
-4. `OwlEntity` provides an application-level data-access service.
-5. `OwlController` translates common HTTP requests into model operations.
-6. `OwlSession`, `OwlCors`, and `OwlIsAuth` handle cross-cutting Express concerns.
+4. `OwlController` translates common HTTP requests into model operations.
+5. `OwlSession`, `OwlCors`, and `OwlIsAuth` handle cross-cutting Express concerns.
 
 The application remains responsible for request validation, authorization policy, business rules, route organization, and its public error policy.
 

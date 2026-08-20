@@ -8,8 +8,8 @@ The package root re-exports four groups:
 | --- | --- |
 | Configuration | `OwlCrypto`, `OwlMongoConnect`, `OwlMongoClose` |
 | Middleware | `OwlCors`, `OwlSession`, `OwlIsAuth` |
-| Utilities | `OwlModel`, `OwlEntity`, `OwlController` |
-| Types | `ControllerConfig`, `EntityConfig`, `ModelOptions`, `ModelReturn`, `QueryOptions` |
+| Utilities | `OwlModel`, `OwlController` |
+| Types | `ControllerConfig`, `ModelOptions`, `ModelReturn`, `QueryOptions` |
 
 ## Import from the package root
 
@@ -18,7 +18,6 @@ import {
 	OwlController,
 	OwlCors,
 	OwlCrypto,
-	OwlEntity,
 	OwlIsAuth,
 	OwlMongoClose,
 	OwlMongoConnect,
@@ -28,7 +27,6 @@ import {
 
 import type {
 	ControllerConfig,
-	EntityConfig,
 	ModelOptions,
 	ModelReturn,
 	QueryOptions,
@@ -84,7 +82,6 @@ Read the focused references for implementation details and reusable examples:
 The library provides composable building blocks rather than an application framework:
 
 - `OwlModel` owns Mongoose access and field security hooks.
-- `OwlEntity` provides an application service boundary around model operations.
 - `OwlController` translates common HTTP requests into model operations.
 - Middleware handles CORS, sessions, and the minimum session authentication check.
 - Consumers remain responsible for validation, authorization policy, error policy, and route organization.
