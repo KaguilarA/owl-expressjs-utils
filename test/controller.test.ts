@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import type { Request, Response } from "express";
-import controllerFactory from "../src/utils/controller";
+import controllerFactory from "../src/utils/controller/controller";
 
 describe("Controller Factory", () => {
   let mockModel: any;

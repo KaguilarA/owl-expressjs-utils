@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import type { Request, Response } from "express";
-import corsMiddleware from "../src/config/cors";
+import corsMiddleware from "../src/middlewares/cors/cors";
 
 describe("CORS Middleware", () => {
   let req: Partial<Request>;

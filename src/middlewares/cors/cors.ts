@@ -10,9 +10,9 @@ import type { Request, Response, NextFunction } from "express";
  *
  * @example
  * ```ts
- * import cors from './cors.js';
-
- * app.use(cors(['http://localhost:3000', 'https://example.com']));
+ * import createCors from "./cors.js";
+ *
+ * app.use(createCors(["http://localhost:3000", "https://example.com"]));
  * ```
  */
 export default (allowedOrigins: string[]) => function (req: Request, res: Response, next: NextFunction): void {

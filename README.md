@@ -1,5 +1,9 @@
 # owl-expressjs-utils
 
+[![npm version](https://img.shields.io/npm/v/owl-expressjs-utils)](https://www.npmjs.com/package/owl-expressjs-utils)
+[![CI and publish](https://github.com/KaguilarA/owl-expressjs-utils/actions/workflows/publish.yml/badge.svg)](https://github.com/KaguilarA/owl-expressjs-utils/actions/workflows/publish.yml)
+[![License](https://img.shields.io/github/license/KaguilarA/owl-expressjs-utils)](LICENSE)
+
 Reusable TypeScript utilities for building Express.js applications backed by MongoDB and Mongoose.
 
 `owl-expressjs-utils` provides small, composable building blocks for common API concerns:
@@ -10,7 +14,7 @@ Reusable TypeScript utilities for building Express.js applications backed by Mon
 - Session-based authentication middleware
 - AES-256-GCM encryption and bcrypt password hashing
 - Mongoose model factories with CRUD, population, search, and pagination helpers
-- Express controller factories for standard CRUD routes
+- Express controller and entity factories for standard CRUD routes
 
 The package is designed for server-side Node.js applications. It is not a frontend library and should not be bundled for browser use.
 
@@ -27,6 +31,26 @@ npm install owl-expressjs-utils
 ```
 
 The package includes TypeScript declarations and supports both ESM and CommonJS consumers.
+
+## Documentation map
+
+The README is the public overview. The source documentation contains the detailed API guide for each reusable module:
+
+| Area | Documentation |
+| --- | --- |
+| Source entry point and package architecture | [`src/readme.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/readme.md) |
+| MongoDB, encryption, and connection configuration | [`src/config/config.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/config/config.md) |
+| Encryption API and key management | [`src/config/crypto/crypto.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/config/crypto/crypto.md) |
+| MongoDB connection | [`src/config/connect/connect.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/config/connect/connect.md) |
+| MongoDB shutdown | [`src/config/closeConnection/closeConnection.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/config/closeConnection/closeConnection.md) |
+| Express middleware overview | [`src/middlewares/middlewares.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/middlewares/middlewares.md) |
+| CORS middleware | [`src/middlewares/cors/cors.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/middlewares/cors/cors.md) |
+| MongoDB-backed sessions | [`src/middlewares/session/session.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/middlewares/session/session.md) |
+| Session authentication | [`src/middlewares/isAuth/isAuth.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/middlewares/isAuth/isAuth.md) |
+| TypeScript interfaces | [`src/interfaces/interfaces.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/interfaces/interfaces.md) |
+| Utility factory overview | [`src/utils/utils.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/utils/utils.md) |
+| Mongoose model factory | [`src/utils/model/model.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/utils/model/model.md) |
+| Express controller factory | [`src/utils/controller/controller.md`](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/utils/controller/controller.md) |
 
 ## Quick Start
 
@@ -73,10 +97,12 @@ All utilities are exported from the package root:
 | `OwlCors` | Creates CORS middleware for approved origins. |
 | `OwlSession` | Creates an Express session middleware using MongoDB. |
 | `OwlIsAuth` | Rejects requests without `req.session.userId`. |
-| `OwlCripto` | Encrypts and decrypts values with AES-256-GCM. |
+| `OwlCrypto` | Encrypts and decrypts values with AES-256-GCM. |
 | `OwlModel` | Creates a Mongoose model with security and query helpers. |
 | `OwlController` | Creates Express handlers for common CRUD operations. |
 | `ControllerConfig` | TypeScript configuration type for `OwlController`. |
+| `ModelOptions` | TypeScript options for timestamps and bcrypt cost. |
+| `ModelReturn` | TypeScript contract returned by `OwlModel`. |
 | `QueryOptions` | TypeScript options type for model queries. |
 
 ## MongoDB Connection
@@ -89,7 +115,7 @@ import { OwlMongoConnect } from "owl-expressjs-utils";
 await OwlMongoConnect("mongodb://127.0.0.1:27017/example");
 ```
 
-The function logs connection failures and exits the process when the connection cannot be established. Handle configuration and deployment errors accordingly.
+The function throws when configuration is missing or the connection fails. It does not terminate the consuming process; handle retries and shutdown in the application.
 
 ## Secure Models
 
@@ -165,19 +191,19 @@ When no pagination options are provided, the query is not paginated.
 
 ## Encryption
 
-`OwlCripto` uses AES-256-GCM and formats encrypted values as `iv:authTag:ciphertext`.
+`OwlCrypto` uses AES-256-GCM and formats encrypted values as `iv:authTag:ciphertext`.
 
 ```ts
-import { OwlCripto } from "owl-expressjs-utils";
+import { OwlCrypto } from "owl-expressjs-utils";
 
-OwlCripto.setEncryptionKey(process.env.ENCRYPTION_KEY as string);
+OwlCrypto.setEncryptionKey(process.env.ENCRYPTION_KEY as string);
 
-const encrypted = OwlCripto.encrypt("private value");
-const plainText = OwlCripto.decrypt(encrypted as string);
-const isEncrypted = OwlCripto.isEncrypted(encrypted);
+const encrypted = OwlCrypto.encrypt("private value");
+const plainText = OwlCrypto.decrypt(encrypted as string);
+const isEncrypted = OwlCrypto.isEncrypted(encrypted);
 ```
 
-The key must be a 64-character hexadecimal string representing 32 bytes. Configure a unique production key before encrypting application data. The module initializes with a development key, but that default must not be used for sensitive production data.
+The key must be a 64-character hexadecimal string representing 32 bytes. Configure a unique production key before encrypting application data. No default key is configured, so encrypted models fail fast until the application explicitly sets one.
 
 Available methods:
 
@@ -186,6 +212,8 @@ Available methods:
 - `encrypt(value)` encrypts a value and preserves `null` or `undefined`.
 - `decrypt(value)` decrypts a formatted encrypted value.
 - `isEncrypted(value)` checks whether a value has the expected encrypted structure.
+
+See the complete [encryption documentation](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/config/crypto/crypto.md) for key format, persistence, and production security guidance.
 
 ## CORS Middleware
 
@@ -267,13 +295,44 @@ The generated controller exposes:
 
 Handlers return `404` for missing documents, `400` for registration or invalid search input, and `500` for unexpected server or database errors.
 
+See the complete [controller documentation](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/utils/controller/controller.md) for route inputs, response behavior, and responsibility boundaries.
+
+## TypeScript Contracts
+
+The package publishes type-only contracts for strongly typed backend integrations:
+
+```ts
+import type {
+	ControllerConfig,
+	ModelOptions,
+	ModelReturn,
+	QueryOptions,
+} from "owl-expressjs-utils";
+```
+
+Read the [interface reference](https://github.com/KaguilarA/owl-expressjs-utils/blob/main/src/interfaces/interfaces.md) for generic model return types, population options, pagination, and factory configuration.
+
+## Architecture
+
+The library is intentionally composable rather than opinionated about application structure:
+
+1. `OwlMongoConnect` establishes the Mongoose connection.
+2. `OwlCrypto` provides encryption configuration for protected model fields.
+3. `OwlModel` owns persistence, security hooks, querying, population, and pagination.
+4. `OwlController` translates common HTTP requests into model operations.
+5. `OwlSession`, `OwlCors`, and `OwlIsAuth` handle cross-cutting Express concerns.
+
+The application remains responsible for request validation, authorization policy, business rules, route organization, and its public error policy.
+
 ## Automated Publishing
 
 The repository includes a GitHub Actions workflow at `.github/workflows/publish.yml`.
 
 - Pull requests targeting `main` run `npm test` and `npm run build`.
-- Commits and merges pushed to `main` run the same validation and then publish the package to npm.
+- Commits and merges pushed to `main` run tests before building and publish the package only after validation succeeds.
 - Manual runs are available through the **Run workflow** button in GitHub Actions.
+
+The `test:build` script always runs `npm test` before `npm run build`. The `prepublishOnly` lifecycle hook runs the test suite again immediately before any `npm publish`, including publishes started outside GitHub Actions.
 
 Before the workflow can publish, add an Actions repository secret named `NPM_TOKEN` containing an npm access token with permission to publish `owl-expressjs-utils`. The workflow uses the `npm` GitHub environment, so configure that environment if you want to require an approval before publishing.
 
@@ -284,8 +343,43 @@ Each successful publication automatically selects the next patch version from th
 ```bash
 npm run build       # Type-check and create ESM, CommonJS, and declaration builds
 npm test            # Run the Vitest test suite
+npm run test:build  # Run tests, then build the package
 npm run test:ui     # Open the Vitest UI
 ```
+
+Before opening a pull request, run the same checks used by CI:
+
+```bash
+npm test
+npm run build
+```
+
+The build performs TypeScript validation and creates ESM, CommonJS, and declaration outputs. The package is intended for Node.js backends and should not be bundled for browser use.
+
+## Contributing
+
+Issues and pull requests are welcome. Keep contributions focused on reusable backend behavior and preserve the existing public API unless a breaking change is intentional and documented.
+
+Recommended workflow:
+
+1. Create a branch from `main`.
+2. Make the smallest focused change.
+3. Add or update tests for behavior changes.
+4. Update the relevant Markdown documentation and JSDoc.
+5. Run `npm test` and `npm run build`.
+6. Open a pull request describing the behavior, compatibility impact, and validation performed.
+
+Please do not commit secrets, MongoDB credentials, npm tokens, generated build output, or production encryption keys. For security-sensitive issues, use the repository's private GitHub security reporting process instead of publishing exploit details in a public issue.
+
+## Maintainer
+
+`owl-expressjs-utils` is maintained by [KaguilarA](https://github.com/KaguilarA).
+
+- GitHub: [github.com/KaguilarA](https://github.com/KaguilarA)
+- Repository: [KaguilarA/owl-expressjs-utils](https://github.com/KaguilarA/owl-expressjs-utils)
+- npm: [owl-expressjs-utils](https://www.npmjs.com/package/owl-expressjs-utils)
+
+Contributors are credited through Git history and merged pull requests. Thank you for helping make the library more useful across backend projects.
 
 ## License
 

@@ -2,12 +2,13 @@ import crypto from "node:crypto";
 
 /**
  * Encrypted utility module using AES-256-GCM for authenticated encryption.
- * Automatically initializes and validates the encryption key from environment variables.
+ * Applications must configure a unique 64-character hexadecimal key before
+ * encrypting or decrypting data.
  * @example
  * ```ts
  * import cryptoUtil from './crypto.js';
  * 
- * cryptoUtil.setEncryptionKey(process.env.ENCRYPTION_KEY);
+ * cryptoUtil.setEncryptionKey(process.env.ENCRYPTION_KEY as string);
  * const encrypted = cryptoUtil.encrypt("Hello World");
  * const decrypted = cryptoUtil.decrypt(encrypted);
  * console.log(decrypted); // Outputs: Hello World
@@ -15,22 +16,26 @@ import crypto from "node:crypto";
  */
 export default (function () {
   let algorithm: string;
-  let key: string;
-  let SECRET_KEY: Buffer;
+  let SECRET_KEY: Buffer | undefined;
 
-  function setSecretKey(): void {
-    SECRET_KEY = Buffer.from(key, "hex");
+  /** Validates and converts a hexadecimal key into the 32-byte cipher key. */
+  function setSecretKey(newKey: string): Buffer {
+    const secretKey = Buffer.from(newKey, "hex");
 
-    if (SECRET_KEY.length !== 32) {
+    if (!/^[0-9a-fA-F]{64}$/.test(newKey) || secretKey.length !== 32) {
       throw new Error(
         "Encryption key must be a 64-character hexadecimal string (32 bytes).",
       );
     }
+
+    return secretKey;
   }
 
   /**
    * Sets the encryption algorithm to be used for encryption and decryption.
-   * @param {string} newAlgorithm 
+  * @param {string} newAlgorithm - Node.js cipher algorithm, such as
+  * `aes-256-gcm`.
+  * @returns {void}
    */
   function setEncryptionAlgorithm(newAlgorithm: string): void {
     algorithm = newAlgorithm;
@@ -38,21 +43,33 @@ export default (function () {
 
   /**
    * Sets the encryption key to be used for encryption and decryption.
-   * @param {string} newKey - The new encryption key (hexadecimal string).
+  * @param {string} newKey - A 64-character hexadecimal string representing
+  * 32 bytes.
+  * @returns {void}
    */
   function setEncryptionKey(newKey: string): void {
-    key = newKey;
-    setSecretKey()
+    const secretKey = setSecretKey(newKey);
+    SECRET_KEY = secretKey;
+  }
+
+  /** Returns whether a valid encryption key has been configured. */
+  function isConfigured(): boolean {
+    return SECRET_KEY?.length === 32;
   }
 
   /**
    * Encrypts a plain text string using AES-256-GCM.
    * @param {string} text - The plain text to encrypt.
-   * @returns {string} The formatted encrypted string (iv:authTag:ciphertext).
+  * @returns {string | null | undefined} The formatted encrypted string
+  * (`iv:authTag:ciphertext`), or the original empty value.
    */
   function encrypt(text: string | null | undefined): string | null | undefined {
     if (text === null || text === undefined) return text;
     const stringValue = typeof text === "string" ? text : String(text);
+
+    if (!isConfigured() || !SECRET_KEY) {
+      throw new Error("Encryption key must be configured before encrypting data.");
+    }
 
     const iv = crypto.randomBytes(12); // 12-byte IV for GCM
     const cipher = crypto.createCipheriv(algorithm, SECRET_KEY, iv);
@@ -69,9 +86,15 @@ export default (function () {
    * Decrypts an AES-256-GCM encrypted string.
    *
    * @param {string} encryptedData - The formatted encrypted string (iv:authTag:ciphertext).
-   * @returns {string} The decrypted plain text.
+  * @returns {string} The decrypted plain text.
+  * @throws {Error} If the encrypted value has an invalid format or cannot be
+  * authenticated with the configured key.
    */
   function decrypt(encryptedData: string): string {
+    if (!isConfigured() || !SECRET_KEY) {
+      throw new Error("Encryption key must be configured before decrypting data.");
+    }
+
     const [ivHex, authTagHex, encryptedText] = encryptedData.split(":");
 
     if (!ivHex || !authTagHex || !encryptedText) {
@@ -93,10 +116,10 @@ export default (function () {
   /**
    * Checks whether a value is already encrypted based on its structural format.
    *
-   * @param {any} val - The value to evaluate.
+  * @param {unknown} val - The value to evaluate.
    * @returns {boolean} True if it matches the encrypted pattern, false otherwise.
    */
-  function isEncrypted(val: any): boolean {
+  function isEncrypted(val: unknown): boolean {
     if (typeof val !== "string") return false;
     const parts = val.split(":");
     return (
@@ -105,7 +128,13 @@ export default (function () {
   }
 
   setEncryptionAlgorithm("aes-256-gcm");
-  setEncryptionKey("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
 
-  return { encrypt, decrypt, isEncrypted, setEncryptionAlgorithm, setEncryptionKey };
+  return {
+    encrypt,
+    decrypt,
+    isConfigured,
+    isEncrypted,
+    setEncryptionAlgorithm,
+    setEncryptionKey,
+  };
 })();

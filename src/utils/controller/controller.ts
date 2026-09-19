@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { ControllerConfig } from "../interfaces/controllerConfig";
+import type { ControllerConfig } from "./../../interfaces";
 
 /**
  * Controller factory for handling HTTP requests and responses for a given model.

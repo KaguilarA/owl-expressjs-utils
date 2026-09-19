@@ -1,17 +1,21 @@
-import { Schema, model, Query } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
+import type { Query, SchemaDefinition } from "mongoose";
 import bcrypt from "bcryptjs";
-import type { QueryOptions } from "../interfaces/queryOptions";
-import AmpApiCripto from "./crypto.js";
+import { OwlCrypto } from "./../../config";
+import type { ModelOptions, ModelReturn, QueryOptions } from "./../../interfaces";
 
 /**
  * Creates a Mongoose model factory with built-in security for field encryption and hashing,
  * along with standardized query and population methods.
  *
+ * @template T The document shape returned by the helper methods.
+ *
  * @param {string} id - Identifier or name of the Mongoose model.
  * @param {import("mongoose").SchemaDefinition} schemaConfig - Mongoose schema definition.
  * @param {string[]} [encryptedFields=[]] - List of fields that should be automatically encrypted.
  * @param {string[]} [hashedFields=[]] - List of fields that should be protected with a bcrypt hash.
- * @returns {Object} An object containing the Mongoose model and data access methods.
+ * @param {ModelOptions} [options={}] - Optional timestamp and bcrypt settings.
+ * @returns {ModelReturn<T>} Data-access methods for the created Mongoose model.
  * @example
  * ```ts
  * import createSecureModel from './model.js';
@@ -28,8 +32,22 @@ import AmpApiCripto from "./crypto.js";
  * );
  * ```
  */
-export default (id: string, schemaConfig: any, encryptedFields: string[] = [], hashedFields: string[] = []) => {
-  const schema = new Schema(schemaConfig, { timestamps: true });
+export default <T = any>(
+  id: string,
+  schemaConfig: SchemaDefinition<any>,
+  encryptedFields: string[] = [],
+  hashedFields: string[] = [],
+  options: ModelOptions = {},
+): ModelReturn<T> => {
+  if (encryptedFields.length > 0 && !OwlCrypto.isConfigured()) {
+    throw new Error(
+      "OwlCrypto.setEncryptionKey must be called before creating a model with encrypted fields.",
+    );
+  }
+
+  const schema = new Schema(schemaConfig, {
+    timestamps: options.timestamps ?? true,
+  });
 
   /**
    * Processes a document after a query to decrypt its protected fields.
@@ -39,9 +57,9 @@ export default (id: string, schemaConfig: any, encryptedFields: string[] = [], h
     if (!doc) return;
 
     encryptedFields.forEach((field: string) => {
-      if (doc[field] && AmpApiCripto.isEncrypted(doc[field])) {
+      if (doc[field] && OwlCrypto.isEncrypted(doc[field])) {
         try {
-          doc[field] = AmpApiCripto.decrypt(doc[field]);
+          doc[field] = OwlCrypto.decrypt(doc[field]);
         } catch (error: unknown) {
           const errorMessage = error instanceof Error ? error.message : String(error);
           console.error(`Error decrypting field ${field}:`, errorMessage);
@@ -92,9 +110,9 @@ export default (id: string, schemaConfig: any, encryptedFields: string[] = [], h
         if (
           this.isModified(field) &&
           this[field] &&
-          !AmpApiCripto.isEncrypted(this[field])
+          !OwlCrypto.isEncrypted(this[field])
         ) {
-          this[field] = AmpApiCripto.encrypt(this[field]);
+          this[field] = OwlCrypto.encrypt(this[field]);
         }
       });
 
@@ -104,7 +122,7 @@ export default (id: string, schemaConfig: any, encryptedFields: string[] = [], h
           this[field] &&
           !isBcryptHash(this[field])
         ) {
-          const salt = await bcrypt.genSalt(10);
+          const salt = await bcrypt.genSalt(options.bcryptSaltRounds ?? 10);
           this[field] = await bcrypt.hash(this[field], salt);
         }
       }
@@ -119,8 +137,8 @@ export default (id: string, schemaConfig: any, encryptedFields: string[] = [], h
 
         encFields.forEach((field: string) => {
           const val = update[field] || (update.$set && update.$set[field]);
-          if (val && typeof val === "string" && !AmpApiCripto.isEncrypted(val)) {
-            const encryptedVal = AmpApiCripto.encrypt(val);
+          if (val && typeof val === "string" && !OwlCrypto.isEncrypted(val)) {
+            const encryptedVal = OwlCrypto.encrypt(val);
             if (update[field]) update[field] = encryptedVal;
             if (update.$set && update.$set[field])
               update.$set[field] = encryptedVal;
@@ -130,7 +148,7 @@ export default (id: string, schemaConfig: any, encryptedFields: string[] = [], h
         for (const field of hashFields) {
           const val = update[field] || (update.$set && update.$set[field]);
           if (val && typeof val === "string" && !isBcryptHash(val)) {
-            const salt = await bcrypt.genSalt(10);
+            const salt = await bcrypt.genSalt(options.bcryptSaltRounds ?? 10);
             const hashedVal = await bcrypt.hash(val, salt);
             if (update[field]) update[field] = hashedVal;
             if (update.$set && update.$set[field])
@@ -211,7 +229,7 @@ export default (id: string, schemaConfig: any, encryptedFields: string[] = [], h
     setupSecurityHooks(schema, encryptedFields, hashedFields);
   }
 
-  const Model = model(id, schema);
+  const Model = mongoose.models[id] ?? model(id, schema);
 
   /**
    * Compares a candidate value against a hash-protected field.

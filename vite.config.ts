@@ -9,33 +9,52 @@ export default defineConfig({
       globals: true,
       environment: "jsdom",
       coverage: {
-        reporter: ["text", "json", "html"]
-      }
-    }
+        reporter: ["text", "json", "html"],
+      },
+    },
   }),
   build: {
     rollupOptions: {
-      external: ["express", "express-session", "connect-mongo", "mongoose", "bcryptjs"],
+      external: [
+        /^node:/,
+        "express",
+        "express-rate-limit",
+        "express-session",
+        "connect-mongo",
+        "mongoose",
+        "bcryptjs",
+      ],
+
       input: {
         index: path.resolve(__dirname, "src/index.ts"),
       },
+
       output: {
         entryFileNames: (chunkInfo) => {
-          return chunkInfo.name === "browser" ? "cdn.min.js" : "index.[format].js";
+          return chunkInfo.name === "browser"
+            ? "cdn.min.js"
+            : "index.[format].js";
         },
-        // Configuración para asegurar que el build IIFE exponga la variable global correctamente
+
         name: "ReactiveValues",
         extend: true,
       },
     },
+
     lib: {
       entry: path.resolve(__dirname, "src/index.ts"),
       name: "ReactiveCore",
       formats: ["es", "cjs"],
-      fileName: (format) => `index.${format}.js`
+      fileName: (format) => `index.${format}.js`,
     },
+
     outDir: "dist",
-    emptyOutDir: true
+    emptyOutDir: true,
   },
-  plugins: [dts({ insertTypesEntry: true })]
+
+  plugins: [
+    dts({
+      insertTypesEntry: true,
+    }),
+  ],
 });

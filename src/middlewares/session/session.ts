@@ -1,4 +1,5 @@
 import session from "express-session";
+import type { SessionOptions } from "express-session";
 import MongoStore from "connect-mongo";
 import mongoose from "mongoose";
 
@@ -10,6 +11,7 @@ import mongoose from "mongoose";
  * @param {string} env - Environment name (e.g., 'production', 'development')
  * @param {string} dbName - Database name for storing sessions
  * @param {string} [mongoUrl] - Optional MongoDB URI used when a Mongoose client is not available
+ * @param {Omit<Partial<SessionOptions>, "secret"|"store">} [options={}] - Optional Express session settings
  * @returns {Function} Express session middleware
  * 
  * @example
@@ -27,6 +29,7 @@ export default function (
   env: string,
   dbName: string,
   mongoUrl?: string,
+  options: Omit<Partial<SessionOptions>, "secret" | "store"> = {},
 ) {
   const client = mongoose.connection.getClient();
   const storeOptions = mongoUrl
@@ -46,17 +49,21 @@ export default function (
     crypto: { secret },
   } as any);
 
+  const { cookie: customCookie, ...sessionOptions } = options;
+
   return session({
     secret,
     resave: false,
     saveUninitialized: false,
     rolling: true,
+    ...sessionOptions,
     store: mongoStore,
     cookie: {
       secure: env === "production",
       httpOnly: true,
       sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24,
+      ...customCookie,
     },
   });
 }
