@@ -12,3 +12,4 @@ export { default as OwlMongoConnect } from "./connect/connect";
 
 /** Determines the number of worker processes to use based on clustering and CPU availability. */
 export { default as OwlClusterWorkerCount } from "./workerCount/workerCount";
+export {OwlObjectId,OwlDatabase,OwlAdminCommand,OwlTypes,OwlIsValidId,OwlTransaction,OwlMongoStatus,OwlMongoCommand,OwlCollection,OwlMongoClient} from "./database";

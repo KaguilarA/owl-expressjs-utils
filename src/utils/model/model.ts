@@ -229,7 +229,16 @@ export default <T = any>(
     setupSecurityHooks(schema, encryptedFields, hashedFields);
   }
 
+  for (const index of options.indexes ?? []) schema.index(index.fields,index.options);
   const Model = mongoose.models[id] ?? model(id, schema);
+  function applyOptions(query: Query<any,any>, options: QueryOptions): Query<any,any> {
+    if(options.populate) query=applyPopulate(query,options.populate);
+    if(options.select) query=query.select(options.select);
+    if(options.sort) query=query.sort(options.sort);
+    if(options.session) query=query.session(options.session);
+    if(options.lean) query=query.lean();
+    return applyPagination(query,options);
+  }
 
   /**
    * Compares a candidate value against a hash-protected field.
@@ -263,11 +272,7 @@ export default <T = any>(
    */
   const getAll = async (options: QueryOptions = {}): Promise<any[]> => {
     let query = Model.find();
-    if (options.populate) {
-      query = applyPopulate(query, options.populate);
-    }
-    query = applyPagination(query, options);
-    return await query;
+    return await applyOptions(query,options);
   };
 
   /**
@@ -280,10 +285,7 @@ export default <T = any>(
    */
   const getById = async (docId: string, options: QueryOptions = {}): Promise<any | null> => {
     let query = Model.findById(docId);
-    if (options.populate) {
-      query = applyPopulate(query, options.populate);
-    }
-    return await query;
+    return await applyOptions(query,options);
   };
 
   /**
@@ -296,10 +298,7 @@ export default <T = any>(
    */
   const getOne = async (filter: any = {}, options: QueryOptions = {}): Promise<any | null> => {
     let query = Model.findOne(filter);
-    if (options.populate) {
-      query = applyPopulate(query, options.populate);
-    }
-    return await query;
+    return await applyOptions(query,options);
   };
 
   /**
@@ -316,11 +315,7 @@ export default <T = any>(
    */
   const getByCoincidence = async (searchQuery: any = {}, options: QueryOptions = {}): Promise<any[]> => {
     let query = Model.find(searchQuery);
-    if (options.populate) {
-      query = applyPopulate(query, options.populate);
-    }
-    query = applyPagination(query, options);
-    return await query;
+    return await applyOptions(query,options);
   };
 
   /**
@@ -337,9 +332,9 @@ export default <T = any>(
    * @param {Object} data - Data of the document to create.
    * @returns {Promise<import("mongoose").Document>} The newly created and saved document.
    */
-  const save = async (data: any): Promise<any> => {
+  const save = async (data: any, options: QueryOptions = {}): Promise<any> => {
     const newData = new Model(data);
-    return await newData.save();
+    return await newData.save(options);
   };
 
   /**
@@ -356,13 +351,21 @@ export default <T = any>(
       new: true,
       ...(options as any),
     } as any);
-    if (options.populate) {
-      query = applyPopulate(query, options.populate);
-    }
-    return await query;
+    return await applyOptions(query,options);
   };
 
   return {
+    modelName:id,
+    fieldNames:Object.freeze(Object.keys(Model.schema.paths)),
+    initialize:async()=>{await Model.init();},
+    saveMany:async(data,options={})=>await Model.create(data,options as any),
+    updateWhere:async(filter,data,options={})=>await applyOptions(Model.findOneAndUpdate(filter,data,{new:true,...options} as any),options),
+    updateMany:async(filter,data,options={})=>await Model.updateMany(filter,data,options as any),
+    deleteMany:async(filter,options={})=>await Model.deleteMany(filter,options as any),
+    countDocuments:async(filter={},options={})=>await Model.countDocuments(filter).session(options.session ?? null),
+    exists:async(filter,options={})=>!!(await Model.exists(filter).session(options.session ?? null)),
+    aggregate:async(pipeline,options={})=>await Model.aggregate(pipeline).option(options),
+    watch:(pipeline=[],options={})=>Model.watch(pipeline,options as any),
     delete: remove,
     compareHash,
     getAll,

@@ -1,3 +1,4 @@
+import type { QueryOptions as MongooseQueryOptions } from "mongoose";
 /**
  * Optional query controls shared by model and entity helpers.
  *
@@ -5,7 +6,9 @@
  * Population accepts paths such as `"profile"` and nested paths such as
  * `"roles.permissions"`.
  */
-export interface QueryOptions {
+export interface QueryOptions extends Omit<MongooseQueryOptions, "populate" | "lean"> {
+  select?: string | Record<string, number>;
+  lean?: boolean;
   /** Mongoose population path(s) to resolve before returning documents. */
   populate?: string | string[] | Record<string, any> | Record<string, any>[];
 

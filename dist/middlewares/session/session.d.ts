@@ -1,0 +1,23 @@
+import { SessionOptions } from 'express-session';
+/**
+ * Creates and configures an express-session middleware with MongoDB as the session store.
+ * Sessions are persisted in MongoDB and automatically cleaned up after maxAge.
+ *
+ * @param {string} secret - Secret key for session encryption
+ * @param {string} env - Environment name (e.g., 'production', 'development')
+ * @param {string} dbName - Database name for storing sessions
+ * @param {string} [mongoUrl] - Optional MongoDB URI used when a Mongoose client is not available
+ * @param {Omit<Partial<SessionOptions>, "secret"|"store">} [options={}] - Optional Express session settings
+ * @returns {Function} Express session middleware
+ *
+ * @example
+ * ```ts
+ * import express from 'express';
+ * import sessionMiddleware from './session.js';
+ *
+ * const app = express();
+ *
+ * app.use(sessionMiddleware('secret-key', 'production', 'mydb', process.env.MONGO_URI));
+ * ```
+ */
+export default function (secret: string, env: string, dbName: string, mongoUrl?: string, options?: Omit<Partial<SessionOptions>, "secret" | "store">): import('express').RequestHandler<import('express-serve-static-core').ParamsDictionary, any, any, import('qs').ParsedQs, Record<string, any>>;
