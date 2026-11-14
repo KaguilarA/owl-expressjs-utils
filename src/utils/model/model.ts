@@ -1,8 +1,8 @@
 import mongoose, { Schema, model } from "mongoose";
 import type { Query, SchemaDefinition } from "mongoose";
 import bcrypt from "bcryptjs";
-import { OwlCrypto } from "./../../config";
-import type { ModelOptions, ModelReturn, QueryOptions } from "./../../interfaces";
+import { OwlCrypto } from "./../../config/index.js";
+import type { ModelOptions, ModelReturn, QueryOptions } from "./../../interfaces/index.js";
 
 /**
  * Creates a Mongoose model factory with built-in security for field encryption and hashing,

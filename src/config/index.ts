@@ -2,13 +2,13 @@
 /** Configuration helpers for MongoDB connections and application security. */
 
 /** Provides AES-256-GCM encryption and decryption helpers. */
-export { default as OwlCrypto } from "./crypto/crypto";
+export { default as OwlCrypto } from "./crypto/crypto.js";
 
 /** Closes the active Mongoose connection without exiting the process. */
-export { default as OwlMongoClose } from "./closeConnection/closeConnection";
+export { default as OwlMongoClose } from "./closeConnection/closeConnection.js";
 
 /** Opens the default Mongoose connection to MongoDB. */
-export { default as OwlMongoConnect } from "./connect/connect";
+export { default as OwlMongoConnect } from "./connect/connect.js";
 
 /** Determines the number of worker processes to use based on clustering and CPU availability. */
-export { default as OwlClusterWorkerCount } from "./workerCount/workerCount";
+export { default as OwlClusterWorkerCount } from "./workerCount/workerCount.js";

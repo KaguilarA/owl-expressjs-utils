@@ -1,4 +1,4 @@
-import OwlModel from "./../../utils/model/model"
+import OwlModel from "./../../utils/model/model.js"
 
 /**
  * Creates a Mongoose model for a state entity.
