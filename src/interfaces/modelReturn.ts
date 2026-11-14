@@ -37,7 +37,18 @@ export interface ModelReturn<T = any> {
   getOne(filter?: any, options?: QueryOptions): Promise<T | null>;
 
   /** Creates and persists a document from the supplied data. */
-  save(data: any): Promise<T>;
+  save(data: any, options?: QueryOptions): Promise<T>;
+  saveMany(data: any[], options?: QueryOptions): Promise<T[]>;
+  updateWhere(filter: any, data: any, options?: QueryOptions): Promise<T | null>;
+  updateMany(filter: any, data: any, options?: QueryOptions): Promise<{matchedCount:number;modifiedCount:number}>;
+  deleteMany(filter: any, options?: QueryOptions): Promise<{deletedCount:number}>;
+  countDocuments(filter?: any, options?: QueryOptions): Promise<number>;
+  exists(filter: any, options?: QueryOptions): Promise<boolean>;
+  aggregate(pipeline: import("mongoose").PipelineStage[], options?: QueryOptions): Promise<any[]>;
+  watch(pipeline?: Record<string, unknown>[], options?: Record<string, unknown>): ReturnType<import("mongoose").Model<T>["watch"]>;
+  initialize(): Promise<void>;
+  readonly modelName: string;
+  readonly fieldNames: readonly string[];
 
   /** Updates a document by its identifier and returns the updated document. */
   update(docId: string, data: any, options?: QueryOptions): Promise<T | null>;
