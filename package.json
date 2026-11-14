@@ -34,7 +34,8 @@
     "test:ui": "vitest --ui",
     "build-demo": "tsc -p tsconfig.demo.json && vite build --config vite.demo.config.ts",
     "demo": "vite --config vite.demo.config.ts",
-    "preview-demo": "vite preview --config vite.demo.config.ts"
+    "preview-demo": "vite preview --config vite.demo.config.ts",
+    "test:types": "tsc -p tsconfig.nodenext.json"
   },
   "repository": {
     "type": "git",

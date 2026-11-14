@@ -1,5 +1,5 @@
-export type * from './interfaces';
-export * from './config';
-export * from './middlewares';
-export * from './models';
-export * from './utils';
+export type * from './interfaces/index.js';
+export * from './config/index.js';
+export * from './middlewares/index.js';
+export * from './models/index.js';
+export * from './utils/index.js';

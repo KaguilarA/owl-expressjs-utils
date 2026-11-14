@@ -1,4 +1,4 @@
-import { QueryOptions } from './queryOptions';
+import { QueryOptions } from './queryOptions.js';
 /**
  * CRUD and query contract returned by the model factory.
  *

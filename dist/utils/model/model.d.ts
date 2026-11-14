@@ -1,5 +1,5 @@
 import { SchemaDefinition } from 'mongoose';
-import { ModelOptions, ModelReturn } from './../../interfaces';
+import { ModelOptions, ModelReturn } from './../../interfaces/index.js';
 /**
  * Creates a Mongoose model factory with built-in security for field encryption and hashing,
  * along with standardized query and population methods.

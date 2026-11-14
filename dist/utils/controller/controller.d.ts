@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ControllerConfig } from './../../interfaces';
+import { ControllerConfig } from './../../interfaces/index.js';
 /**
  * Controller factory for handling HTTP requests and responses for a given model.
  * @param {Object} config - Configuration object.
