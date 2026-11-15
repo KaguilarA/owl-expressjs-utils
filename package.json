@@ -1,6 +1,6 @@
 {
   "name": "owl-expressjs-utils",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "TypeScript utilities for building Express.js applications with MongoDB, Mongoose, sessions, authentication, CORS, encryption, and CRUD controllers.",
   "type": "module",
   "author": {
@@ -34,7 +34,8 @@
     "test:ui": "vitest --ui",
     "build-demo": "tsc -p tsconfig.demo.json && vite build --config vite.demo.config.ts",
     "demo": "vite --config vite.demo.config.ts",
-    "preview-demo": "vite preview --config vite.demo.config.ts"
+    "preview-demo": "vite preview --config vite.demo.config.ts",
+    "test:types": "tsc -p tsconfig.nodenext.json"
   },
   "repository": {
     "type": "git",
@@ -59,7 +60,7 @@
     "express": "5.2.1",
     "express-rate-limit": "^8.7.0",
     "express-session": "1.19.0",
-    "mongoose": "8.12.0"
+    "mongoose": "8.24.7"
   },
   "devDependencies": {
     "@types/express": "5.0.6",

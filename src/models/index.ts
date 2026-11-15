@@ -5,4 +5,4 @@
 /**
  * OwlState model represents the state entity in the database.
  */
-export { default as OwlState } from "./state/state";
+export { default as OwlState } from "./state/state.js";
